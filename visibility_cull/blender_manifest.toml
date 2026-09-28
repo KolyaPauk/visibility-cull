@@ -1,0 +1,10 @@
+schema_version = "1.0.0"
+id = "visibility_cull"
+version = "1.0.0"
+name = "Visibility Cull"
+tagline = "Delete triangles never seen from viewpoint empties"
+maintainer = "kolya"
+type = "add-on"
+tags = ["Mesh"]
+blender_version_min = "4.2.0"
+license = ["SPDX:MIT"]
