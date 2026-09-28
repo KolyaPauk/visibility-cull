@@ -1,64 +1,64 @@
 # Visibility Cull
 
-Аддон для Blender удаляет треугольники смерженного меша, которые игрок не может увидеть ни из одной заданной точки. Из каждой точки пускаются лучи во всех направлениях. Треугольник остаётся, если он стал первым попаданием хотя бы одного луча. Остальные треугольники удаляются, затем удаляются вершины, которые больше не входят ни в одну грань.
+A Blender addon that deletes triangles of a merged mesh the player can never see from a set of points. From each point it casts rays in every direction. A triangle is kept when it is the first hit of at least one ray. Every other triangle is deleted, then vertices that no longer belong to a face are deleted too.
 
-Язык панели совпадает с языком интерфейса Blender. Сейчас есть английский и русский. Русский включается в **Preferences → Interface → Translation**, когда выбран русский язык и отмечена галка **Interface**.
+The panel language follows Blender's interface language. English and Russian are included. Russian appears when **Preferences → Interface → Translation** is set to Russian and **Interface** is enabled.
 
-## Установка
+## Install
 
-Нужен Blender 4.2 или новее. Файл `visibility_cull.zip` лежит в [релизе v1.0.0](https://github.com/KolyaPauk/visibility-cull/releases/tag/v1.0.0).
+Blender 4.2 or newer is required. `visibility_cull.zip` is attached to [release v1.0.0](https://github.com/KolyaPauk/visibility-cull/releases/tag/v1.0.0).
 
-1. Скачайте `visibility_cull.zip` из релиза. Не распаковывайте его.
-2. В Blender откройте **Edit → Preferences → Get Extensions → Install from Disk** и выберите этот zip.
-3. Включите аддон **Visibility Cull**.
+1. Download `visibility_cull.zip` from the release. Do not unzip it.
+2. In Blender open **Edit → Preferences → Get Extensions → Install from Disk** and choose the zip.
+3. Enable **Visibility Cull**.
 
-Панель находится в 3D Viewport по клавише `N`, вкладка **Visibility**.
+The panel is in the 3D Viewport, `N` key, **Visibility** tab.
 
-## Как пользоваться
+## Usage
 
-1. Импортируйте меш.
-2. Поставьте Empty в каждой точке, откуда смотрит игрок. Если пустышка стоит в ногах, задайте **Eye height** (обычно около 1.6).
-3. Соберите пустышки в коллекцию.
-4. Выделите один или несколько мешей. Кнопка обрабатывает каждый выделенный меш отдельно. Невыделенные объекты не меняются.
-5. В панели укажите коллекцию в **Viewpoints** и нажмите **Delete unseen triangles**.
+1. Import the mesh.
+2. Place an Empty at every point the player looks from. If the empty sits at the character's feet, set **Eye height** (about 1.6).
+3. Put the empties in a collection.
+4. Select one or more meshes. The button processes each selected mesh on its own. Unselected objects are left unchanged.
+5. In the panel assign that collection to **Viewpoints** and click **Delete unseen triangles**.
 
-Результат — копия с суффиксом `_visible`. Исходник скрывается во вьюпорте. Вернуть его можно через `Alt+H`. Меш на выходе триангулирован. Треугольник сохраняется, если его видит хотя бы одна точка.
+The result is a copy named with the suffix `_visible`. The source is hidden in the viewport. Show it again with `Alt+H`. The output mesh is triangulated. A triangle is kept if any viewpoint can see it.
 
-Лучи берут позицию объекта, а не направление камеры. Камера в коллекции точек тоже годится: обзор идёт на 360°.
+Rays use the object's location, not a camera's facing direction. A camera in the viewpoint collection is fine: the trace covers 360°.
 
-## Параметры
+## Parameters
 
-**Viewpoints.** Коллекция объектов, из чьих координат пускаются лучи. Если коллекция не задана, берутся выделенные пустышки.
+**Viewpoints.** Collection of objects whose locations emit rays. If the collection is empty, selected empties are used.
 
-**Eye height.** Сдвиг точки вверх по миру. `0` означает старт луча прямо из позиции объекта.
+**Eye height.** World-space offset upward. `0` starts the ray at the object location.
 
-**Resolution.** Плотность сетки лучей, от 1 до 1024. На точку приходится `разрешение × разрешение × 6` лучей. При 128 это 98 304 луча, при 1024 — 6 291 456. Выше значение дольше считается и реже пропускает узкую деталь.
+**Resolution.** Grid density, from 1 to 1024. Rays per point are `resolution × resolution × 6`. At 128 that is 98,304 rays. At 1024 it is 6,291,456. A higher value takes longer and is less likely to miss a thin detail.
 
-**Limit to bounds.** Лучи сетки идут только в сторону габаритного бокса меша. Направления, которые гарантированно проходят мимо, не трассируются. Точка внутри бокса по-прежнему пускает полную сферу, иначе пропадут стены вокруг игрока. Строка на панели показывает, сколько лучей осталось: `Grid rays: N of M`.
+**Limit to bounds.** Grid rays are cast only toward the mesh bounding box. Directions that cannot hit the box are skipped. A point inside the box still traces a full sphere, so walls around the player are not removed. The panel reports the reduced count as `Grid rays: N of M`.
 
-**Max distance.** Дальность луча. `0` — без ограничения.
+**Max distance.** Ray length. `0` means no limit.
 
-**Ray offset.** Сдвиг старта луча вперёд. Нужен, если точка случайно оказалась на поверхности.
+**Ray offset.** Moves the start of each ray forward. Use it when a point happens to lie on a surface.
 
-**Rays to centers.** Дополнительный луч в центр каждого треугольника. Так сохраняется мелкая грань между лучами сетки, если её центр виден. Включено по умолчанию.
+**Rays to centers.** An extra ray to the center of every triangle. This keeps a small face that falls between grid rays when its center is visible. On by default.
 
-**Rays to vertices.** Дополнительные лучи к вершинам треугольника. Медленнее, лучше сохраняет тонкие края.
+**Rays to vertices.** Extra rays toward each triangle's vertices. Slower, and better at keeping thin edges.
 
-**Neighbor margin.** Сколько колец соседних треугольников оставить вокруг видимых. `0` удаляет всё, во что луч не попал. `1` или `2` оставляют запас, если на стыках появляются дыры.
+**Neighbor margin.** How many rings of neighboring triangles to keep around visible ones. `0` deletes every triangle a ray did not hit. `1` or `2` leaves a margin when gaps appear along edges.
 
-**Apply modifiers.** Лучи идут по мешу после модификаторов. На копии модификаторы уже применены.
+**Apply modifiers.** Rays trace the mesh after modifiers. Modifiers are applied on the copy.
 
-**See through transparent.** Материал не останавливает луч, если у Principled BSDF подключён вход **Alpha**, Alpha меньше 1, включён Transmission или в дереве есть Transparent, Glass либо Refraction BSDF. Сам треугольник сохраняется, и сохраняется то, что видно сквозь него.
+**See through transparent.** A material does not stop a ray when the Principled BSDF **Alpha** input is linked, Alpha is below 1, Transmission is enabled, or the node tree contains a Transparent, Glass, or Refraction BSDF. The hit triangle is kept, and so is whatever is visible through it.
 
-Для маски из Unreal Engine подключите текстуру ко входу **Alpha**. Если непрозрачность лежит в R-канале и каналы R, G и B одинаковые, соедините выход **Color** ноды Image Texture с **Alpha** и поставьте **Color Space: Non-Color**. Аддон не читает отдельные пиксели: подключённый Alpha делает прозрачным весь материал, включая непрозрачные участки маски.
+For an Unreal Engine opacity mask, connect the texture to **Alpha**. If opacity is stored in the R channel and R, G, and B are identical, connect the Image Texture **Color** output to **Alpha** and set **Color Space** to **Non-Color**. The addon does not read individual pixels: a linked Alpha makes the whole material transparent, including texels that are opaque in the mask.
 
-**Edit original object.** Писать результат в исходный меш. Выключено по умолчанию: создаётся копия.
+**Edit original object.** Write the result into the original mesh. Off by default, which creates a copy.
 
-**Hide source.** Скрыть исходник во вьюпорте, когда результат записан в копию.
+**Hide source.** Hide the original object in the viewport when the result is a copy.
 
-## Ограничения
+## Limits
 
-- Точек должно быть много, по всему маршруту игрока. Редкая расстановка вырежет стену между двумя точками.
-- Удалённая геометрия больше не отбрасывает тени и не участвует в освещении.
-- Лучи останавливает только сам обрабатываемый меш. Окклюдеры нужно включить в него заранее.
-- Коллизию аддон не меняет.
+- Place points along the whole path the player can walk. A sparse set will delete a wall between two points.
+- Deleted geometry no longer casts shadows or takes part in lighting.
+- Only the mesh being processed stops rays. Merge occluders into that mesh first.
+- The addon does not change collision.
